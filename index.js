@@ -1,0 +1,71 @@
+import e from "express";
+import { connection, collectionName } from "./dbconfig.js";
+import cors from "cors";
+import { ObjectId } from "mongodb";
+
+const app = e();
+
+app.use(e.json());
+app.use(cors({ origin: "https://taskertodo.vercel.app" }));
+
+app.post("/add-task", async (req, resp) => {
+  const db = await connection()
+  const collection = db.collection(collectionName);
+  const result = await collection.insertOne(req.body);
+  if (result) {
+    resp.send({ message: "Task added successfully", success: true, result })
+  } else {
+    resp.send({ message: "Task not added", success: false });
+  }
+
+});
+
+app.get("/tasks", async (req, resp) => {
+  const db = await connection();
+  const collection = db.collection(collectionName);
+  const id = req.params.id;
+  const result = await collection.find({}).toArray();
+  if (result) {
+    resp.send({ message: "Task list fetch", success: true, result })
+  } else {
+    resp.send({ message: "error try after some time", success: false });
+  }
+});
+
+app.delete("/delete/:id", async (req, resp) => {
+  const db = await connection();
+  const id = req.params.id;
+  const collection = db.collection(collectionName);
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  resp.send({ message: "Task deleted", success: true, result });
+});
+
+app.put("/update-task", async (req, resp) => {
+  const db = await connection();
+  const collection = db.collection(collectionName);
+  const {_id,...fields}= req.body;
+  const update= {$set:fields}
+  const result = await collection.updateOne({ _id: new ObjectId(_id) },update)
+  if (result) {
+    resp.send({ message: "Task date updated", success: true, result })
+  } else {
+    resp.send({ message: "error try after some time", success: false });
+  }
+});
+
+app.get("/tasks/:id", async (req, resp) => {
+  const db = await connection();
+  const collection = db.collection(collectionName);
+  const id = req.params.id;
+  const result = await collection.findOne({ _id: new ObjectId(id) })
+  if (result) {
+    resp.send({ message: "Task fetch", success: true, result })
+  } else {
+    resp.send({ message: "error try after some time", success: false });
+  }
+});
+
+export default app;
+
+
+
