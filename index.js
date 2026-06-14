@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 const app = e();
 
 app.use(e.json());
-app.use(cors({ origin: "https://taskertodo.vercel.app" }));
+app.use(cors({ origin: "https://aryatodolist.vercel.app" }));
 
 app.post("/add-task", async (req, resp) => {
   const db = await connection()
